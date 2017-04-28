@@ -1,10 +1,13 @@
-CC	=	g++
+CC	=	g++ -std=c++11 -pthread
 DEBUG	=	-g
 LFLAG	=	-Wall $(DEBUG)
 CFLAG	=	-Wall -c $(DEBUG)
 
-server: server.c
-	$(CC) server.c -o server
+main: server.o
+	$(CC) main.cpp server.o -o main
+
+server: server.h server.cpp
+	$(CC) server.cpp $(CFLAG)
 
 clean:
-	\rm *.o *~ server
+	\rm *.o *~ main
