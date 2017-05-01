@@ -1,13 +1,16 @@
-CC	=	g++ -std=c++11 -pthread
-DEBUG	=	-g
-LFLAG	=	-Wall $(DEBUG)
-CFLAG	=	-Wall -c $(DEBUG)
+OBJFILES	=	server.o
+CC		=	g++
+FLAG		=	-std=c++11 -pthread -ldl
+DEBUG		=	-g
+LFLAG		=	-Wall $(DEBUG)
+CFLAG		=	-Wall -c $(DEBUG)
+MAINEXEC	=	main
 
 main: server.o
-	$(CC) main.cpp server.o -o main
+	$(CC) $(FLAG) main.cpp server.o -o main
 
-server: server.h server.cpp
-	$(CC) server.cpp $(CFLAG)
+server.o: server.h server.cpp
+	$(CC) $(FLAG) server.cpp $(CFLAG)
 
 clean:
-	\rm *.o *~ main
+	\rm $(OBJFILES) $(MAINEXEC)

@@ -1,5 +1,9 @@
 #include "server.h"
 
+void foo(){
+
+}
+
 void Server::initialize(int port){
 	int sockfd;
 	
@@ -28,7 +32,7 @@ void Server::initialize(int port){
 
 void Server::start_listening(int socket){
 	while(1){
-		int newsockfd;
+		int newsockfd = -1;
 		struct sockaddr_in cli_addr;
 		socklen_t clilen = sizeof(cli_addr);
 	
@@ -39,49 +43,19 @@ void Server::start_listening(int socket){
 			perror("Error: Failed to connect to incoming connection.\n");
 		}
 		//Start new thread to handle request
-		std::thread t1 (handle_connection, newsockfd);
-		//t1.detach();
+		//handle_connection(newsockfd);
+		std::thread t1 (&Server::handle_connection, this, newsockfd);
+		t1.detach();
 	}
 }
 
 void Server::handle_connection(int sockfd){
 	char buffer[256];
-	recv(sockfd, buffer, 255, MSG_WAITALL);
-	std::cout << buffer << "\n";
+	std::string response = "Thank you for your response.\n";
+	const char* responseChar = response.c_str();
+	recv(sockfd, buffer, 255, 0);
+	std::cout << buffer;
+	send(sockfd, (void*)responseChar, strlen(responseChar), MSG_NOSIGNAL);
 	close(sockfd);
 	return;
 }
-
-	/*
-	int sockfd, newsockfd, port
-	socklen_t clilen;
-	char buffer[256];
-	struct sockaddr_in serv_addr, cli_addr;
-	int n;
-
-	if(argc < 2) {
-		Error("Error: No port number was provided");
-	}
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockfd < 0)
-		Error("Error: Socket failed to initialize");
-	bzero((char*) &serv_addr, sizeof(serv_addr));
-	port = atoi(argv[1]);
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(port);
-	serv_addr.sin_addr.s_addr = INADDR_ANY;
-	if(bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-		Error("Error: Failed to bind socket to port");
-	listen(sockfd, 5);
-	clilen = sizeof(cli_addr);
-	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-	if(newsockfd < 0)
-		Error("Error: Failed to accept connection");
-	bzero(buffer, 256);
-	n = read(newsockfd, buffer, 255);
-	if(n < 0)
-		Error("Error: Failed to read from socket");
-	printf("Message: %s", buffer);
-	close(newsockfd);
-	*/
