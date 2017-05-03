@@ -60,19 +60,31 @@ void Server::handle_connection(int sockfd){
 
 void Server::authenticate(int sockfd){
 	char buffer[256];
+	std::string username, password;
 	sendMessage(sockfd, "Please enter your username: ");
+	bzero(buffer, 255);
 	if(recv(sockfd, buffer, 255, 0) > 0){
-		if(authentication.find((std::string)buffer) == authentication.end()){
-			sendMessage(sockfd, "Username not found. Closing connection.\n");
+		username = (std::string)buffer;
+		username = username.substr(0, username.length()-1);
+		_(std::cout << "Entered username: " << username << "\n";)
+		if(authentication.find(username) == authentication.end()){
+			std::cout << "Error: Invalid username\n";
+			sendMessage(sockfd, "Invalid username. Closing connection.\n");
 			close(sockfd);
-		} else {
-			std::string username(buffer);
-			if(recv(sockfd, buffer, 255, 0) > 0){
-				if(authentication[username] != (std::string)buffer){
-					sendMessage(sockfd, "Incorrect password. Closing connection.\n");
-					close(sockfd);
-				}
-			}
+		}
+	}
+
+
+	sendMessage(sockfd, "Please enter the password: ");
+	bzero(buffer, 255);
+	if(recv(sockfd, buffer, 255, 0) > 0){
+		password = (std::string)buffer;
+		password = password.substr(0, password.length()-1);
+		_(std::cout << "Entered password: " << password << "\n";)
+		if(authentication[username] != password){
+			std::cout << "Error: Invalid password\n";
+			sendMessage(sockfd, "Invalid password. Closing connection.\n");
+			close(sockfd);
 		}
 	}
 	

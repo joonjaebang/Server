@@ -6,7 +6,7 @@ LFLAG		=	-Wall $(DEBUG)
 CFLAG		=	-Wall -c $(DEBUG)
 MAINEXEC	=	main
 
-main: server.o
+main: server.o define.h server.h
 	$(CC) $(FLAG) main.cpp server.o -o main
 
 server.o: server.h server.cpp

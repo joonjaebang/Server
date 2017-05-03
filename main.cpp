@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include "define.h"
 #include "server.h"
 
 using namespace std;
@@ -31,6 +32,10 @@ int main(int argc, char* argv[]){
 		string username, password;
 		ss >> username >> password;
 		authentication.insert(authentication.begin(), pair<string, string>(username, password));
+	}
+	
+	for(auto it = authentication.begin(); it != authentication.end(); ++it){
+		_(cout << it->first << " " << it->second << "\n";)
 	}
 
 	Server server;

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <thread>
 #include <map>
+#include "define.h"
 
 extern std::map<std::string, std::string> authentication;
 
