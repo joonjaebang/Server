@@ -1,12 +1,7 @@
 #include "server.h"
 
-void foo(){
-
-}
-
 void Server::initialize(int port){
 	int sockfd;
-	
 	struct sockaddr_in serv_addr;
 	
 	//Create socket
@@ -42,8 +37,8 @@ void Server::start_listening(int socket){
 		if(newsockfd < 0){
 			perror("Error: Failed to connect to incoming connection.\n");
 		}
+
 		//Start new thread to handle request
-		//handle_connection(newsockfd);
 		std::thread t1 (&Server::handle_connection, this, newsockfd);
 		t1.detach();
 	}
@@ -53,9 +48,37 @@ void Server::handle_connection(int sockfd){
 	char buffer[256];
 	std::string response = "Thank you for your response.\n";
 	const char* responseChar = response.c_str();
-	recv(sockfd, buffer, 255, 0);
-	std::cout << buffer;
-	send(sockfd, (void*)responseChar, strlen(responseChar), MSG_NOSIGNAL);
+	authenticate(sockfd);
+	while(recv(sockfd, buffer, 255, 0) > 0){
+		std::cout << buffer;
+		send(sockfd, (void*)responseChar, strlen(responseChar), MSG_NOSIGNAL);
+		bzero(buffer, 256);
+	}
 	close(sockfd);
 	return;
+}
+
+void Server::authenticate(int sockfd){
+	char buffer[256];
+	sendMessage(sockfd, "Please enter your username: ");
+	if(recv(sockfd, buffer, 255, 0) > 0){
+		if(authentication.find((std::string)buffer) == authentication.end()){
+			sendMessage(sockfd, "Username not found. Closing connection.\n");
+			close(sockfd);
+		} else {
+			std::string username(buffer);
+			if(recv(sockfd, buffer, 255, 0) > 0){
+				if(authentication[username] != (std::string)buffer){
+					sendMessage(sockfd, "Incorrect password. Closing connection.\n");
+					close(sockfd);
+				}
+			}
+		}
+	}
+	
+}
+
+void Server::sendMessage(int sockfd, std::string prompt){
+	const char * promptChar = prompt.c_str();
+	send(sockfd, (void*)promptChar, strlen(promptChar), MSG_NOSIGNAL);
 }
